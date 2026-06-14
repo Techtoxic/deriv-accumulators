@@ -1,0 +1,31 @@
+# Secrets — never commit
+.env
+*.env
+secrets.*
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# Logs & data
+logs/*.log
+logs/*.csv
+logs/*.jsonl
+data/*.csv
+*.sqlite
+*.db
+
+# Schemas scratch
+probe/schemas/
+probe/*.zip
+
+# OS
+.DS_Store
+
+# all runtime logs/artifacts (regenerable; may contain account ids)
+/logs/*
+!/logs/.gitkeep
