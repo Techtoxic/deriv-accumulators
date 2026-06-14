@@ -39,6 +39,16 @@ async def main_async(args):
     cfg = build_cfg(args)
     if not cfg.conn.token or not cfg.conn.app_id:
         print("ERROR: DERIV_TOKEN / DERIV_APP_ID missing in .env"); sys.exit(1)
+    banner = (
+        "============================================================\n"
+        " Deriv Accumulator bot — DEMO account\n"
+        " Measured edge (see FINDINGS.md): per-tick survival is below\n"
+        " break-even on every 1s instrument/growth tier; the fib filter\n"
+        " has no predictive power. This is -EV; use --dry-run to collect\n"
+        " data without spending balance.\n"
+        "============================================================"
+    )
+    print(banner)
     print("CONFIG:", json.dumps(cfg.sanitized()["strat"], indent=2, default=str))
     logger = TradeLogger(cfg.log_dir)
     bot = AccumulatorBot(cfg, logger=logger)

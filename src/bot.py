@@ -155,6 +155,11 @@ class AccumulatorBot:
             self.log(f"BUY FAILED {e}")
             return
         cid = buy.get("contract_id")
+        if not cid:
+            rec["reason"] = "buy_no_contract_id"
+            self.logger.log_minute(rec)
+            self.log("BUY returned no contract_id; skipping minute")
+            return
         rec["entry_taken"] = True
         rec["contract_id"] = cid
         rec["tick17_price"] = price
@@ -210,7 +215,6 @@ class AccumulatorBot:
                 last_tp = tp
                 last_spot = spot
             # exit decisioning
-            cur_tick_no = (int(poc.get("current_spot_time") or 0) % 60) + 1
             if s.use_adaptive_hold and tp is not None:
                 if scorer.score < s.quiet_score_exit and tp >= 1:
                     exit_reason = "MANUAL_CLOSE"; break
