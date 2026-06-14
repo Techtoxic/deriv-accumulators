@@ -16,7 +16,7 @@ from typing import Optional
 from config import Config
 from src.deriv_client import DerivClient, DerivError
 from src.strategy import (MinuteTracker, evaluate_entry, QuietScorer,
-                          fib_expansion, tick_knockout)
+                          fib_expansion, tick_knockout, classify_settled_outcome)
 from src.trade_logger import TradeLogger, utcnow
 
 
@@ -200,10 +200,8 @@ class AccumulatorBot:
             # knockout / settled by platform
             if poc.get("is_sold") or poc.get("is_expired") or status in ("won", "lost"):
                 final = poc
-                if status == "lost":
-                    exit_reason = "KNOCKED_OUT"
-                else:
-                    exit_reason = "SURVIVED" if not poc.get("sell_price") else "MANUAL_CLOSE"
+                exit_reason = classify_settled_outcome(
+                    status, poc.get("profit"), poc.get("sell_price"))
                 break
             # update quiet score once per new tick
             if tp is not None and tp != last_tp:

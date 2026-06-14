@@ -28,6 +28,21 @@ def tick_knockout(prev_price: float, price: float, tsb: float) -> bool:
     return abs(price - prev_price) > tsb * prev_price
 
 
+def classify_settled_outcome(status, profit, sell_price) -> str:
+    """Outcome label for a contract that ended. Accumulators auto-terminate only
+    on knockout (loss) or on hitting max payout/ticks (win); a negative profit
+    therefore means a knockout even if `status` has not flipped to "lost" yet."""
+    try:
+        pv = float(profit)
+    except (TypeError, ValueError):
+        pv = 0.0
+    if status == "lost" or pv < 0:
+        return "KNOCKED_OUT"
+    if sell_price:
+        return "MANUAL_CLOSE"
+    return "SURVIVED"
+
+
 # --------------------------------------------------------------- fib expand
 @dataclass
 class FibExpansion:

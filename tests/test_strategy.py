@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config import StrategyConfig
 from src.strategy import (fib_expansion, tick_knockout, MinuteTracker,
-                          evaluate_entry, QuietScorer)
+                          evaluate_entry, QuietScorer, classify_settled_outcome)
 
 
 def approx(a, b, eps=1e-9):
@@ -153,6 +153,18 @@ def test_quiet_scorer():
     assert qs.score == 2
     qs.update(100.0, 100.5, tsb)    # loud (-2) -> 0
     assert qs.score == 0
+
+
+def test_classify_settled_outcome():
+    # negative profit is a knockout even if status hasn't flipped to "lost" yet
+    assert classify_settled_outcome("open", "-1.00", None) == "KNOCKED_OUT"
+    assert classify_settled_outcome("lost", "-1.00", None) == "KNOCKED_OUT"
+    # we sold it back -> manual close
+    assert classify_settled_outcome("sold", "0.32", "1.32") == "MANUAL_CLOSE"
+    # auto-terminated in profit (hit max payout/ticks), not sold by us
+    assert classify_settled_outcome("won", "5.00", None) == "SURVIVED"
+    # robust to missing profit
+    assert classify_settled_outcome(None, None, None) == "SURVIVED"
 
 
 if __name__ == "__main__":
